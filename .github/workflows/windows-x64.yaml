@@ -112,6 +112,14 @@ jobs:
         run: |
           python3 -m pip install cmake
           cmake --version
+          
+      - name: Install older CMake 3.24.2   
+        if: steps.cache-build-result.outputs.cache-hit != 'true'
+        shell: bash
+        run: |
+          pip uninstall -y cmake
+          pip install cmake==3.24.2
+          
 
       - name: Build onnxruntime for Windows x64
         if: steps.cache-build-result.outputs.cache-hit != 'true'
