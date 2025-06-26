@@ -66,6 +66,21 @@ jobs:
             git diff
           fi
 
+      - name: Patch ort_mutex.h (add missing chrono include)
+        if: steps.cache-build-result.outputs.cache-hit != 'true'
+        shell: pwsh
+        run: |
+          $file = "onnxruntime/include/onnxruntime/core/platform/ort_mutex.h"
+          $text = Get-Content $file
+          $index = ($text | Select-String -Pattern "#include <condition_variable>" | Select-Object -First 1).LineNumber
+          if ($index) {
+            $before = $text[0..($index - 1)]
+            $after = $text[$index..($text.Count - 1)]
+            $patched = $before + '#include <chrono>' + $after
+            $patched | Set-Content $file
+          }
+
+
       - name: Download protoc
         if: steps.cache-build-result.outputs.cache-hit != 'true'
         shell: bash
